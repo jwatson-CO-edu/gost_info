@@ -7,7 +7,9 @@ import ( "fmt" ; "rsc.io/quote" ; "time" ; "math/rand" ; "math" ; "math/cmplx" )
 var fprint  = fmt.Println
 var fprintf = fmt.Printf
 
-/*** Global vars ***/
+/*** Global vars ***
+var <varName> <typeName> */
+var foo       float64
 var c, python, java bool // Initialized to false
 var j, k int = 1, 2 // Initialized to values
 
