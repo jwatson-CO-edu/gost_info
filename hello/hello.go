@@ -111,7 +111,6 @@ func main(){
 	fprint( "Is it true?" , result )
 
 	// FIXME: START HERE:  https://tour.golang.org/flowcontrol/1
-
 }
 
 /********** Package / Implementation Facts ********************************************************
