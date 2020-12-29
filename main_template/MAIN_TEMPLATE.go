@@ -17,7 +17,7 @@ import (
 )
 
 /*** Aliases ***/
-var fprint = fmt.Println // Alias for PrintLine
+var fprint  = fmt.Println // Alias for PrintLine
 var fprintf = fmt.Printf //- Alias for PrintFormat
 
 /********** MAIN *********************************************************************************/
