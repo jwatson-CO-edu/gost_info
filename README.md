@@ -8,6 +8,7 @@
     * https://opensource.com/article/18/5/building-concurrent-tcp-server-go
     * https://github.com/mactsouk/opensource.com/blob/master/concTCP.go
 [ ] Review Best Practices: https://golang.org/doc/code.html
+    * https://dave.cheney.net/practical-go
 [ ] Review Package Structure: 
     https://github.com/golang/go/wiki/GithubCodeLayout
 [ ] Concurrency & Parallelism Deep Dive
