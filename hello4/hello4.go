@@ -20,6 +20,9 @@ import (
 var fprint  = fmt.Println // Alias for PrintLine
 var fprintf = fmt.Printf //- Alias for PrintFormat
 
+/********** PART 5: Concurrency ******************************************************************/
+// https://tour.golang.org/concurrency/1
+
 /********** MAIN *********************************************************************************/
 func main(){ /*Terminal args*/ //progArgs := os.Args[1:]
 
