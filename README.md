@@ -3,10 +3,11 @@
 
 # Dev Plan
 ```
-[ ] Take "A Tour of Go": https://tour.golang.org/list
+[Y] Take "A Tour of Go": https://tour.golang.org/list - 2020-12-31
 [ ] Concurrent TCP Server
     * https://opensource.com/article/18/5/building-concurrent-tcp-server-go
     * https://github.com/mactsouk/opensource.com/blob/master/concTCP.go
+[ ] UDP Server/Client: https://ops.tips/blog/udp-client-and-server-in-go/
 [ ] Review Best Practices: https://golang.org/doc/code.html
     * https://dave.cheney.net/practical-go
 [ ] Review Package Structure: 
@@ -23,6 +24,13 @@
     { } https://yourbasic.org/golang/efficient-parallel-computation/
 [ ] ROM Scraper
 [ ] Struct Composition: https://www.geeksforgeeks.org/composition-in-golang/
+    { } https://www.digitalocean.com/community/tutorials/how-to-use-interfaces-in-go
+    { } Compose Interfaces: https://medium.com/@_jesus_rafael/composing-interfaces-in-go-58980969e897
+    { } https://journal.highlandsolutions.com/how-to-compose-an-interface-in-go-beginners-guide-26a56672f0a0
+    { } Entity Component System
+        [ ] Move this idea to a game project, OGL project takes precedence over a golang game
+        * Interface test to see if the component is present
+        * Vector of component interface structs
 [ ] Review Patterns: https://refactoring.guru/design-patterns/go
 ```
 
@@ -33,11 +41,11 @@
 # Possible Projects
 ```
 [ ] Web Server:
+    * https://golang.org/doc/articles/wiki/
     * https://medium.com/google-cloud/building-a-go-web-app-from-scratch-to-deploying-on-google-cloud-part-1-building-a-simple-go-aee452a2e654
     * Buffalo?: https://www.gopherguides.com/articles/converting-a-static-website-to-golang-buffalo/
     * https://medium.com/better-programming/the-beginners-guide-to-setting-up-a-web-server-in-golang-9c9473cbe372
     * https://dev.to/coreyvan/from-zero-to-http-servers-with-go-and-raspberry-pi-3oi1
-    * https://golang.org/doc/articles/wiki/
     * https://docs.aws.amazon.com/lambda/latest/dg/golang-handler.html
     * https://aws.amazon.com/getting-started/hands-on/host-static-website/
 [ ] Google API Experiments

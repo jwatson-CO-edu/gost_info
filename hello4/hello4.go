@@ -15,6 +15,7 @@ import (
 	"fmt" //- Printing
 	"time"
 	"runtime"
+	"sync"
 	//"os" // Terminal args
 )
 
@@ -70,6 +71,31 @@ func fibonacci2( c, quit chan int ) { // Takes 2 int channels: `c` and `quit`
 				return
 		}
 	}
+}
+
+
+/***** 77. Mutex ********************/
+
+type SafeCounter struct {
+	// SafeCounter is safe to use concurrently.
+	mu sync.Mutex
+	v  map[ string ] int
+}
+
+func ( c *SafeCounter ) Inc(key string) {
+	// Inc increments the counter for the given key.
+	c.mu.Lock()
+	// Lock so only one goroutine at a time can access the map c.v.
+	c.v[key]++
+	c.mu.Unlock()
+}
+
+func ( c *SafeCounter ) Value( key string ) int {
+	// Value returns the current value of the counter for the given key.
+	c.mu.Lock()
+	// Lock so only one goroutine at a time can access the map c.v.
+	defer c.mu.Unlock() // This runs AFTER the function returns, handy!
+	return c.v[key]
 }
 
 /********** MAIN *********************************************************************************/
@@ -143,7 +169,61 @@ func main(){ /*Terminal args*/ //progArgs := os.Args[1:]
 	// Run the fib num function
 	fibonacci2( eee, quit )
 
-	// 75. https://tour.golang.org/concurrency/6
+
+	// 75. Capacity and length of channels
+	fff := make( chan int )
+	ggg := make( chan int, 10 )
+	go func(){	
+		fff <- 1
+		// fff <- 2 // Causes this goroutine to HANG, prints below do not work
+		// Therefore an unbuffered channel has an effective capacity of 1, and only first push appears
+		for i := 0 ; i < 5 ; i++ {  ggg <- i  }
+		// for i := 5 ; i < 12 ; i++ {  ggg <- i  } // Capacity exceeded, same story as above
+		// 											   A push that exceeds capacity will hang
+		fprintf( "fff, cap: %d, len: %d\n" , cap( fff ) , len( fff ) )
+		fprintf( "ggg, cap: %d, len: %d\n" , cap( ggg ) , len( ggg ) )
+	}()
+	fprint( "Found int:" , <- fff ) // Force main goroutine to wait
+
+	/* fff, cap: 0, len: 0  // The actual capacity is "1"
+	   ggg, cap: 10, len: 5
+	   Found int: 1 */
+
+	/* Your program will exit when the main() function finishes. 
+	This is likely to happen before your goroutine has time to run and print its output. 
+	Write data to a channel ch at the end of goroutine and read data from ch out of goroutine 
+	can make the main function waiting for goroutine print message.
+	( https://stackoverflow.com/questions/16228887/why-does-fmt-println-inside-a-goroutine-not-print-a-line ) */
+	
+
+	/* 76. Select Default
+	The default case in a select is run if no other case is ready.
+	Use a default case to try a send or receive without blocking.  */
+	func(){
+		tick := time.Tick(  100 * time.Millisecond )
+		boom := time.After( 500 * time.Millisecond )
+		for { // Infinite While
+			select { // Do the possible one
+				case <-tick:
+					fmt.Println( "tick." )
+				case <-boom:
+					fmt.Println( "BOOM!" )
+					return
+				default:
+					fmt.Println("    .")
+					time.Sleep(50 * time.Millisecond)
+			}
+		}
+	}()
+
+	// 77. Using Mutex
+	c := SafeCounter{v: make(map[string]int)}
+	for i := 0; i < 1000; i++ {
+		go c.Inc("somekey") // Schedule 1000 goroutines to add to the same key
+	}
+
+	time.Sleep(time.Second)
+	fmt.Println(c.Value("somekey"))
 }
 
 /********** Utility Functions ********************************************************************/
