@@ -12,6 +12,9 @@
 [ ] Review Package Structure: 
     https://github.com/golang/go/wiki/GithubCodeLayout
 [ ] Concurrency & Parallelism Deep Dive
+    * Communicating Sequential Processes: Bucket Brigade
+        - [ ] Goroutines + Channels
+        - [ ] Select
     { } https://medium.com/@tilaklodha/concurrency-and-parallelism-in-golang-5333e9a4ba64
     { } https://hub.packtpub.com/concurrency-and-parallelism-in-golang-tutorial/
     { } https://spiralscout.com/blog/understanding-concurrency-and-parallelism-in-golang
