@@ -55,6 +55,23 @@ func fibonacci(n int, c chan int) {
 	close(c)
 }
 
+// 74. Select
+func fibonacci2( c, quit chan int ) { // Takes 2 int channels: `c` and `quit`
+	/* The select statement lets a goroutine wait on multiple communication operations. 
+	A select blocks until one of its cases can run, then it executes that case. 
+	It chooses one at random if multiple are ready.*/
+	x, y := 0, 1
+	for { // Infinite while
+		select { // Do the first one possible
+			case c <- x: // Push x onto the `c` channel
+				x, y = y, x+y // Calc the next fib num
+			case <- quit: // Pop a value from `quit` channel
+				fprint( "quit" ) // Print "quit" and return
+				return
+		}
+	}
+}
+
 /********** MAIN *********************************************************************************/
 func main(){ /*Terminal args*/ //progArgs := os.Args[1:]
 
@@ -111,6 +128,22 @@ func main(){ /*Terminal args*/ //progArgs := os.Args[1:]
 	go fibonacci( cap(ddd), ddd ) // Load the first 10 fib numbers in the channel
 	for i := range ddd {  fprintf( "%d, ", i )  }
 	fprint("")
+
+	// 74. Select
+	// Create the channels that `fibonacci2` is looking for
+	eee  := make( chan int ) // Note that we did not specify a buffer size
+	quit := make( chan int ) // So each of these channels can only hold one message
+	// Run a lambda function in a goroutine
+	go func() {
+		// Fetch 10 elements from the channel
+		for i := 0; i < 10; i++ {  fprint( <- eee )  }
+		// Then send something to the `quit` channel
+		quit <- 0
+	}()
+	// Run the fib num function
+	fibonacci2( eee, quit )
+
+	// 75. https://tour.golang.org/concurrency/6
 }
 
 /********** Utility Functions ********************************************************************/
