@@ -62,8 +62,10 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+	// 6. After `main` exits, make sure to close the connection
 	defer l.Close()
-	rand.Seed(time.Now().Unix())
+	// 7. Use the clock to 
+	rand.Seed( time.Now().Unix() )
 
 	for {
 		c, err := l.Accept()
