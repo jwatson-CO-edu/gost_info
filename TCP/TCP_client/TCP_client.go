@@ -21,22 +21,31 @@ var fprintf = fmt.Printf //- Alias for PrintFormat
 
 /********** Networking Functions *****************************************************************/
 
-func connect_for_a_while( srvrPort string, clntPortBgn string, duration_s int, rateHz int ) string {
+func connect_for_a_while( srvrPort string, clntPortBgn string, duration_s float64, rateHz int ) string {
 	// Connect, send some stuff, then disconnect
 
+    var (
+        conn /**/ *net.TCPConn
+        err /*-*/ error
+        tcpAddr   *net.TCPAddr
+        connected bool
+        result    []byte
+    )
+
     /* Establish a connection */
-    connected := false
+    connected = false
     
     // 0. While not connected, try ports until one connects
     for {
         // 1. Get the address of the endpoint
-        tcpAddr, err := net.ResolveTCPAddr( "tcp4", srvrPort )
-        checkError( err ) // FIXME: Need an error check that does NOT crash the program!
+        tcpAddr, err = net.ResolveTCPAddr( "tcp4", srvrPort )
+        if !checkError( err ) {
+            // 3. Attempt to establish a connection
+            conn, err = net.DialTCP( "tcp", nil, tcpAddr )
+            connected = !checkError( err ) 
+        }
 
-        // 3. Attempt to establish a connection
-        conn, err := net.DialTCP( "tcp", nil, tcpAddr )
-        checkError( err ) // FIXME: Need an error check that does NOT crash the program!
-        connected = true
+        
 
         // 4. If the connection was successful, then break out of the loop
         if connected {  
@@ -51,8 +60,23 @@ func connect_for_a_while( srvrPort string, clntPortBgn string, duration_s int, r
     
     /* While there is time remaining, send messages at the specified rate */
     // NOTE: We assume there are not network errors if we have reached this point
+    elapsed := get_elapsed_timer()
     for {
 
+        // 6. Write some stuff 
+        _, err = conn.Write(  []byte( "HEAD / HTTP/1.0\r\n\r\n" )  )
+        checkError( err )
+
+        // 7. Read anything that comes back
+        result, err = ioutil.ReadAll( conn )
+        checkError( err )
+
+        // 8. Print what comes back
+        fmt.Println(  string( result )  )
+
+
+        // 10. If the timer has run out, then stop send/recv
+        if elapsed() > duration_s {  break  }
     }
 
 	// https://stackoverflow.com/a/56336811
@@ -78,27 +102,23 @@ func main() {
 
 	
 
-	// 4. Write some stuff 
-    _, err = conn.Write(  []byte( "HEAD / HTTP/1.0\r\n\r\n" )  )
-    checkError( err )
+	
 
-    // 5. Read anything that comes back
-    result, err := ioutil.ReadAll( conn )
-    checkError( err )
+    
 
-	// 6. Print what comes back
-    fmt.Println(  string( result )  )
+	
 
 	// 7. Quit
     os.Exit(0)
 }
 
-func checkError( err error ) {
-	// If there was an error, then print it
+func checkError( err error ) bool {
+	// If there was an error, then return true, otherwise return false
     if err != nil {
         fmt.Fprintf(os.Stderr, "Fatal error: %s", err.Error())
-        os.Exit(1)
+        return true
     }
+    return false
 }
 
 
