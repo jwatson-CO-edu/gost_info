@@ -10,6 +10,8 @@ import (
     "os"
     "fmt"
     "io/ioutil"
+    "strconv"
+    "time"
 )
 
 /*** Aliases ***/
@@ -19,12 +21,39 @@ var fprintf = fmt.Printf //- Alias for PrintFormat
 
 /********** Networking Functions *****************************************************************/
 
-func connect_for_a_while( srvrPort string, clntPortBgn string, duration_s int, rateHz int ){
+func connect_for_a_while( srvrPort string, clntPortBgn string, duration_s int, rateHz int ) string {
 	// Connect, send some stuff, then disconnect
 
-	/* Establish a connection */
+    /* Establish a connection */
+    connected := false
+    
+    // 0. While not connected, try ports until one connects
+    for {
+        // 1. Get the address of the endpoint
+        tcpAddr, err := net.ResolveTCPAddr( "tcp4", srvrPort )
+        checkError( err ) // FIXME: Need an error check that does NOT crash the program!
 
-	/* While there is time remaining, send messages at the specified rate */
+        // 3. Attempt to establish a connection
+        conn, err := net.DialTCP( "tcp", nil, tcpAddr )
+        checkError( err ) // FIXME: Need an error check that does NOT crash the program!
+        connected = true
+
+        // 4. If the connection was successful, then break out of the loop
+        if connected {  
+            break  
+        // 5. Else, could not make connection
+        }else{
+            i, err := strconv.Atoi( srvrPort )
+            i++
+            srvrPort = strconv.Itoa(i)
+        }
+    }
+    
+    /* While there is time remaining, send messages at the specified rate */
+    // NOTE: We assume there are not network errors if we have reached this point
+    for {
+
+    }
 
 	// https://stackoverflow.com/a/56336811
 }
@@ -45,13 +74,9 @@ func main() {
     }
     service := os.Args[1]
 
-	// 2. Get the address of the endpoint
-    tcpAddr, err := net.ResolveTCPAddr( "tcp4", service )
-    checkError( err )
+	
 
-	// 3. Attempt to establish a connection
-    conn, err := net.DialTCP( "tcp", nil, tcpAddr )
-    checkError( err )
+	
 
 	// 4. Write some stuff 
     _, err = conn.Write(  []byte( "HEAD / HTTP/1.0\r\n\r\n" )  )
@@ -74,4 +99,14 @@ func checkError( err error ) {
         fmt.Fprintf(os.Stderr, "Fatal error: %s", err.Error())
         os.Exit(1)
     }
+}
+
+
+func get_elapsed_timer() ( func() float64 ) {
+    // Return a function that returns the number of seconds since the closure was created
+    bgn := time.Now() // <-- *Enclosed* variable
+    // Return a lambda function that returns time since `get_elapsed_timer` returned
+	return func() float64 {
+		return float64(  time.Since( bgn )  )
+	}
 }
