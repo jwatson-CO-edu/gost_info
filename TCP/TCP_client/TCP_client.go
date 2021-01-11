@@ -21,8 +21,36 @@ var fprintf = fmt.Printf //- Alias for PrintFormat
 
 /********** Networking Functions *****************************************************************/
 
-func connect_for_a_while( srvrPort string, clntPortBgn string, duration_s float64, rateHz int ) string {
+func GetInternalIP( netInterfaceName string ) string {
+    // Get the internal IP address as a string
+    // Author: Darlan D., Source: https://stackoverflow.com/a/51829730
+    itf, _ := net.InterfaceByName( netInterfaceName ) //here your interface
+    item, _ := itf.Addrs()
+    var ip net.IP
+    for _, addr := range item {
+        switch v := addr.(type) {
+        case *net.IPNet:
+            if !v.IP.IsLoopback() {
+                if v.IP.To4() != nil {//Verify if IP is IPV4
+                    ip = v.IP
+                }
+            }
+        }
+    }
+    if ip != nil {
+        return ip.String()
+    } else {
+        return ""
+    }
+}
+
+func connect_for_a_while( srvrPort string, clntPortBgn string, duration_s float64, rateHz int ) error {
 	// Connect, send some stuff, then disconnect
+
+    /*** TODO ***
+    [ ] Track the complete address and port separately
+    [ ] Get the port attempt loop working properly
+    */
 
     var (
         conn /**/ *net.TCPConn
@@ -30,31 +58,42 @@ func connect_for_a_while( srvrPort string, clntPortBgn string, duration_s float6
         tcpAddr   *net.TCPAddr
         connected bool
         result    []byte
+        i /*---*/ int
+        j /*---*/ int
+        tryLimit  int
     )
 
     /* Establish a connection */
     connected = false
+    j /*---*/ =  0
+    tryLimit  = 10
     
     // 0. While not connected, try ports until one connects
     for {
+        j++
         // 1. Get the address of the endpoint
-        tcpAddr, err = net.ResolveTCPAddr( "tcp4", srvrPort )
+        fprint( "\nAbout to resolve ..." )
+        srvrPort = "127.0.0.1" + ":" + srvrPort
+        tcpAddr, err = net.ResolveTCPAddr( "tcp", srvrPort )
+        fprint( "Found:" , tcpAddr )
         if !checkError( err ) {
             // 3. Attempt to establish a connection
             conn, err = net.DialTCP( "tcp", nil, tcpAddr )
             connected = !checkError( err ) 
         }
 
-        
+        if j > tryLimit {  break  }
 
         // 4. If the connection was successful, then break out of the loop
         if connected {  
             break  
         // 5. Else, could not make connection
         }else{
-            i, err := strconv.Atoi( srvrPort )
+            fprint( "Failed port:", srvrPort )
+            i, err = strconv.Atoi( srvrPort )
             i++
             srvrPort = strconv.Itoa(i)
+            fprint( "Try port:", srvrPort )
         }
     }
     
@@ -79,6 +118,7 @@ func connect_for_a_while( srvrPort string, clntPortBgn string, duration_s float6
         if elapsed() > duration_s {  break  }
     }
 
+    return err
 	// https://stackoverflow.com/a/56336811
 }
 
@@ -97,16 +137,9 @@ func main() {
         os.Exit(1)
     }
     service := os.Args[1]
+    fprint( "Passed the port:", service )
 
-	
-
-	
-
-	
-
-    
-
-	
+	connect_for_a_while( service, "9001", 10.0, 10 )
 
 	// 7. Quit
     os.Exit(0)
