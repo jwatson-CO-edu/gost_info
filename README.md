@@ -7,6 +7,8 @@
 [ ] Concurrent TCP Server
     * https://opensource.com/article/18/5/building-concurrent-tcp-server-go
     * https://github.com/mactsouk/opensource.com/blob/master/concTCP.go
+    * Additional Ref: 
+    https://astaxie.gitbooks.io/build-web-application-with-golang/content/en/08.1.html
 [ ] UDP Server/Client: https://ops.tips/blog/udp-client-and-server-in-go/
 [ ] Review Best Practices: https://golang.org/doc/code.html
     * https://dave.cheney.net/practical-go
