@@ -28,6 +28,8 @@ var fprintf = fmt.Printf //- Alias for PrintFormat
 
 /***** NetAgent *****/
 type NetAgent struct {
+	// Container struct for networking info
+	// NOTE: For simplicity, there are no locks and it is assumed there will be no races
 	/* Connection */
 	conn /*-*/ *net.Conn // Network interface
 	addrPtr    *net.Addr // Address object
@@ -57,14 +59,38 @@ func default_connection_spec() NetAgent {
 
 /***** Server *****/
 
+func ( ntwkAgnt *NetAgent ) Listen() {
+	// Open the `NetAgent` port for listening
+}
 
+func ( ntwkAgnt *NetAgent ) Accept() {
+	// Accept one connection (blocking)
+}
+
+func ( ntwkAgnt *NetAgent ) srvr_handle_conn() {
+	// 
+}
 
 /***** Client *****/
 
+func ( ntwkAgnt *NetAgent ) clnt_resolve_and_dial() {
+	
+}
 
+func ( ntwkAgnt *NetAgent ) clnt_handle_conn() {
+	
+}
 
 
 /********** MAIN *********************************************************************************/
 func main(){ /*Terminal args*/ //progArgs := os.Args[1:]
+
+	// 1. Init server
+
+	// 2. Begin server loop
+
+	// 3. Init client
+
+	// 4. Begin client loop
 
 }
