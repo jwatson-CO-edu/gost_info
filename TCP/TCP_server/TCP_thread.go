@@ -5,7 +5,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"math/rand"
 	"net"
@@ -24,20 +23,35 @@ const MAX = 100 // Max random number
 func handleConnection( c net.Conn ){
 	// Do the server work once the connection `c` has been established
 	fmt.Printf( "Serving %s\n", c.RemoteAddr().String() ) // Print the connected address
+
+	var (
+		netData []byte
+		netCode int
+		err     error
+	)
+
 	for { // Infinite while
+
 		//  1. Read from the connection until the next newline
-		netData, err := bufio.NewReader(c).ReadString('\n')
+		netCode, err = c.Read( netData )
+		// netData, err := bufio.NewReader(c).ReadString('\n')
+		fmt.Println( "Got:" , netData , "," , netCode )
+		
 		//  2. If there was an error, print it and return
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
+
 		//  3. Else, strip whitespace from the ends of the string
 		temp := strings.TrimSpace( string( netData ) )
+		
 		//  4. If the client sent a "STOP" command, then break out of the loop
 		if temp == "STOP" {  break  }
+		
 		//  5. Convert a random number to a string
 		result := strconv.Itoa( random() ) + "\n"
+		
 		//  6. Convert a string to a bytestring and sent it back over the connection
 		c.Write( []byte( string( result ) ) )
 	}
@@ -65,7 +79,7 @@ func main() {
 	//  3. Prepend a colon to the port
 	PORT := ":" + arguments[1]
 	//  4. Listen at the specified port
-	l, err := net.Listen( "tcp4", PORT ) // Return the connection and an error code
+	l, err := net.Listen( "tcp", PORT ) // Return the connection and an error code
 	//  5. If there was an error, report it and end program
 	if err != nil {
 		fmt.Println(err)

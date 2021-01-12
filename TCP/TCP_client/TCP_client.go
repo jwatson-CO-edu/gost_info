@@ -9,7 +9,6 @@ import (
     "net"
     "os"
     "fmt"
-    "io/ioutil"
     "strconv"
     "time"
 )
@@ -44,7 +43,7 @@ func GetInternalIP( netInterfaceName string ) string {
     }
 }
 
-func connect_for_a_while( srvrPort string, clntPortBgn string, duration_s float64, rateHz int ) error {
+func connect_for_a_while( srvrPort string, duration_s float64, rateHz int ) error {
 	// Connect, send some stuff, then disconnect
 
     /*** TODO ***
@@ -56,14 +55,17 @@ func connect_for_a_while( srvrPort string, clntPortBgn string, duration_s float6
         conn /**/ *net.TCPConn
         err /*-*/ error
         tcpAddr   *net.TCPAddr
+        portNum   string
         connected bool
         result    []byte
+        rtnCode   int
         i /*---*/ int
         j /*---*/ int
         tryLimit  int
     )
 
     /* Establish a connection */
+    portNum   = srvrPort
     connected = false
     j /*---*/ =  0
     tryLimit  = 10
@@ -73,7 +75,7 @@ func connect_for_a_while( srvrPort string, clntPortBgn string, duration_s float6
         j++
         // 1. Get the address of the endpoint
         fprint( "\nAbout to resolve ..." )
-        srvrPort = "127.0.0.1" + ":" + srvrPort
+        srvrPort = "127.0.0.1" + ":" + portNum
         tcpAddr, err = net.ResolveTCPAddr( "tcp", srvrPort )
         fprint( "Found:" , tcpAddr )
         if !checkError( err ) {
@@ -89,33 +91,41 @@ func connect_for_a_while( srvrPort string, clntPortBgn string, duration_s float6
             break  
         // 5. Else, could not make connection
         }else{
-            fprint( "Failed port:", srvrPort )
-            i, err = strconv.Atoi( srvrPort )
+            fprint( "Failed port:", portNum )
+            i, err = strconv.Atoi( portNum )
             i++
-            srvrPort = strconv.Itoa(i)
-            fprint( "Try port:", srvrPort )
+            portNum = strconv.Itoa(i)
+            fprint( "Try port:", portNum )
         }
     }
+
+    fprint( "CONNECTED!" )
     
     /* While there is time remaining, send messages at the specified rate */
     // NOTE: We assume there are not network errors if we have reached this point
     elapsed := get_elapsed_timer()
+    msg     := []byte( "8" ) 
     for {
 
+        fprint( "About to write:" , msg )
+
         // 6. Write some stuff 
-        _, err = conn.Write(  []byte( "HEAD / HTTP/1.0\r\n\r\n" )  )
+        _, err = conn.Write( msg  )
         checkError( err )
 
         // 7. Read anything that comes back
-        result, err = ioutil.ReadAll( conn )
+        time.Sleep(2 * time.Second) 
+        rtnCode, err = conn.Read( result )
         checkError( err )
 
         // 8. Print what comes back
-        fmt.Println(  string( result )  )
+        fmt.Println(  string( result ) , rtnCode  )
 
 
         // 10. If the timer has run out, then stop send/recv
-        if elapsed() > duration_s {  break  }
+        timeGone := elapsed()
+        fprint( timeGone , "elapsed." )
+        if timeGone > duration_s {  break  }
     }
 
     return err
@@ -139,7 +149,9 @@ func main() {
     service := os.Args[1]
     fprint( "Passed the port:", service )
 
-	connect_for_a_while( service, "9001", 10.0, 10 )
+    connect_for_a_while( service, 10.0, 10 )
+    
+    fprint( "Connection CLOSED!" )
 
 	// 7. Quit
     os.Exit(0)
@@ -160,6 +172,6 @@ func get_elapsed_timer() ( func() float64 ) {
     bgn := time.Now() // <-- *Enclosed* variable
     // Return a lambda function that returns time since `get_elapsed_timer` returned
 	return func() float64 {
-		return float64(  time.Since( bgn )  )
+		return float64(  time.Since( bgn ).Seconds()  )
 	}
 }
