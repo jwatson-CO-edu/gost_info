@@ -106,7 +106,7 @@ func main() {
 
 /********** Utility Functions ********************************************************************/
 
-func random() int {
+func random() int { // TODO: SEND TO GOSTBUSTR
 	// Get a random int between `MIN` and `MAX`
 	return rand.Intn( MAX - MIN ) + MIN
 }

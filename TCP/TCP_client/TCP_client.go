@@ -167,7 +167,7 @@ func checkError( err error ) bool {
 }
 
 
-func get_elapsed_timer() ( func() float64 ) {
+func get_elapsed_timer() ( func() float64 ) { // TODO: SEND TO GOSTBUSTR
     // Return a function that returns the number of seconds since the closure was created
     bgn := time.Now() // <-- *Enclosed* variable
     // Return a lambda function that returns time since `get_elapsed_timer` returned
